@@ -41,13 +41,13 @@ export default function ProductForm({
   return (
     <div className="bg-white p-6 rounded shadow-md mb-6">
       <h3 className="text-lg font-semibold mb-4">
-        {product ? "Edit Product" : "Add Product"}
+        {product ? "Modifier le produit" : "Ajouter un produit"}
       </h3>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           name="name"
-          placeholder="Product name"
+          placeholder="Nom du produit"
           value={form.name}
           onChange={handleChange}
           className="w-full border px-3 py-2 rounded"
@@ -56,7 +56,7 @@ export default function ProductForm({
 
         <input
           name="category"
-          placeholder="Category"
+          placeholder="Catégorie"
           value={form.category}
           onChange={handleChange}
           className="w-full border px-3 py-2 rounded"
@@ -66,7 +66,7 @@ export default function ProductForm({
         <input
           name="price"
           type="number"
-          placeholder="Price"
+          placeholder="Prix"
           value={form.price}
           onChange={handleChange}
           className="w-full border px-3 py-2 rounded"
@@ -88,14 +88,14 @@ export default function ProductForm({
             type="submit"
             className="bg-blue-600 text-white px-4 py-2 rounded"
           >
-            Save
+            Enregistrer
           </button>
           <button
             type="button"
             onClick={onCancel}
             className="bg-gray-300 px-4 py-2 rounded"
           >
-            Cancel
+            Annuler
           </button>
         </div>
       </form>

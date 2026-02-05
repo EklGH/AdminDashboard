@@ -26,6 +26,7 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<void>; // Fonction pour connecter un utilisateur
   logout: () => void; // Fonction pour déconnecter l’utilisateur
   isAuthenticated: boolean; // Indique si l’utilisateur est connecté
+  loading: boolean; // Indique si la restauration auth est en cours
 }
 
 // ======== Interface LoginResponse (réponse login simulé)

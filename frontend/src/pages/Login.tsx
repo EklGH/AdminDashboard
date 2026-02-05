@@ -9,16 +9,12 @@ import { useNavigate } from "react-router-dom";
 export default function Login() {
   // Récupération des fonctions login et logout depuis le hook du Context
   const { login } = useAuth();
-
   // Pour naviguer vers d’autres routes
   const navigate = useNavigate();
-
   // Stocke l’email saisi par l’utilisateur
   const [email, setEmail] = useState("");
-
   // Stocke le mdp saisi
   const [password, setPassword] = useState("");
-
   // Affiche les erreurs de login
   const [error, setError] = useState("");
 
@@ -41,13 +37,13 @@ export default function Login() {
         onSubmit={handleSubmit}
         className="bg-white p-6 rounded shadow-md w-80 space-y-4"
       >
-        <h2 className="text-lg font-bold text-center">Admin Login</h2>
+        <h2 className="text-lg font-bold text-center">Connexion Admin</h2>
 
         {error && <p className="text-red-500 text-sm">{error}</p>}
 
         <input
           type="email"
-          placeholder="Email"
+          placeholder="Adresse email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="w-full border px-3 py-2 rounded"
@@ -65,7 +61,7 @@ export default function Login() {
           type="submit"
           className="w-full bg-blue-600 text-white py-2 rounded"
         >
-          Login
+          Connexion
         </button>
       </form>
     </div>

@@ -10,6 +10,8 @@ import { useProducts } from "../hooks/useProducts";
 import type { UseProductsReturn } from "../hooks/useProducts";
 // Import du type Column
 import type { Column } from "../components/table/DataTable";
+// Import du Loader
+import Loader from "../components/ui/Loader";
 
 // Typage d'un produit directement depuis le hook useProducts
 type ProductFromHook = NonNullable<UseProductsReturn["data"]>[number];
@@ -24,21 +26,26 @@ export default function Products() {
   const [editingProduct, setEditingProduct] = useState<ProductFromHook | null>(
     null,
   );
+  // Feedbacks utilisateur (success/error)
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   // Nombre d’éléments par page
   const pageSize = 3;
 
   // Colonnes de la DataTable
   const columns: Column<ProductFromHook>[] = [
     { key: "id", label: "ID" },
-    { key: "name", label: "Name" },
-    { key: "category", label: "Category" },
-    { key: "price", label: "Price" },
+    { key: "name", label: "Nom" },
+    { key: "category", label: "Catégorie" },
+    { key: "price", label: "Prix" },
     { key: "stock", label: "Stock" },
   ];
 
   // Feedbacks pour le chargement des pages
-  if (isLoading) return <p>Loading products...</p>;
-  if (error) return <p className="text-red-500">Error loading products</p>;
+  if (isLoading) return <Loader message="Chargement des produits..." />;
+  if (error)
+    return (
+      <p className="text-red-500">Erreur lors du chargement des produits</p>
+    );
 
   // Produits à afficher sur la page courante
   const start = (currentPage - 1) * pageSize;
@@ -49,23 +56,53 @@ export default function Products() {
   const handleSave = (product: ProductFromHook) => {
     if (!product.id || product.id === 0) {
       // Create
-      create.mutate(product);
+      create.mutate(product, {
+        onSuccess: () => setStatusMessage("Produit créé avec succès !"),
+        onError: () => setStatusMessage("Echec de la création du produit"),
+      });
     } else {
       // Update
-      update.mutate(product);
+      update.mutate(product, {
+        onSuccess: () => setStatusMessage("Produit mis à jour avec succès !"),
+        onError: () => setStatusMessage("Echec de la mise à jour du produit"),
+      });
     }
     setEditingProduct(null);
   };
 
   // Suppression d’un produit
   const handleDelete = (id: number) => {
-    remove.mutate(id);
+    remove.mutate(id, {
+      onSuccess: () => setStatusMessage("Produit supprimé avec succès !"),
+      onError: () => setStatusMessage("Echec de la suppression du produit"),
+    });
   };
 
   // ======== Rendu JSX de la page
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">Products</h2>
+      <h2 className="text-xl font-bold mb-4">Produits</h2>
+
+      <button
+        onClick={() =>
+          setEditingProduct({
+            id: 0,
+            name: "",
+            category: "",
+            price: 0,
+            stock: 0,
+          })
+        }
+        className="mb-4 bg-green-600 text-white px-4 py-2 rounded"
+      >
+        + Ajouter un produit
+      </button>
+
+      {statusMessage && (
+        <div className="mb-4 px-4 py-2 bg-green-100 text-green-800 rounded">
+          {statusMessage}
+        </div>
+      )}
 
       <ProductForm
         product={editingProduct}
@@ -82,14 +119,14 @@ export default function Products() {
               onClick={() => setEditingProduct(row)}
               className="px-2 py-1 bg-blue-500 text-white rounded"
             >
-              Edit
+              Modifier
             </button>
 
             <button
               onClick={() => handleDelete(row.id)}
               className="px-2 py-1 bg-red-500 text-white rounded"
             >
-              Delete
+              Supprimer
             </button>
           </div>
         )}

@@ -6,20 +6,21 @@ const linkClass = "block px-4 py-2 rounded hover:bg-blue-600 hover:text-white";
 
 // ======== Composant Sidebar
 export default function Sidebar() {
+  // ======== Rendu JSX de la Sidebar
   return (
     // Conteneur de la sidebar + liens
     <aside className="w-64 bg-gray-900 text-gray-200 p-4">
       <nav className="space-y-2">
         <NavLink to="/dashboard" className={linkClass}>
-          Dashboard
+          Tableau de bord
         </NavLink>
 
         <NavLink to="/products" className={linkClass}>
-          Products
+          Produits
         </NavLink>
 
         <NavLink to="/reservations" className={linkClass}>
-          Reservations
+          Réservations
         </NavLink>
       </nav>
     </aside>

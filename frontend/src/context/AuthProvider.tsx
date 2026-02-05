@@ -1,7 +1,8 @@
 // Import de ReactNode
 import type { ReactNode } from "react";
-// Import React Hooks
+// Imports React Hooks
 import { useState } from "react";
+import { useEffect } from "react";
 // Import du Context
 import { AuthContext } from "./AuthContext";
 // Import du type User
@@ -14,21 +15,49 @@ interface AuthProviderProps {
 
 // ======== Composant Provider
 export function AuthProvider({ children }: AuthProviderProps) {
-  // Pour stocker l'utilisateur connecté
+  // Stocke l'utilisateur connecté
   const [user, setUser] = useState<User | null>(null);
+  // Indique si la restauration auth est en cours
+  const [loading, setLoading] = useState(true);
 
-  // Login mock : update les identifiants
+  // ======== Restaure l'authentification au chargement
+  useEffect(() => {
+    const restoreAuth = () => {
+      // Récupère le user sauvegardé
+      const storedUser = localStorage.getItem("user");
+      // Récupère le token mock
+      const token = localStorage.getItem("token");
+
+      // Si un utilisateur et un token existent, les restaure.
+      if (storedUser && token) {
+        setUser(JSON.parse(storedUser));
+      }
+
+      setLoading(false);
+    };
+    Promise.resolve().then(restoreAuth);
+  }, []);
+
+  // ======== Login mock : connecte l'utilisateur et sauvegarde ses infos
   const login = async (email: string, password: string) => {
-    // Vérifie si les identifiants sont valides
-    if (email && password) {
-      setUser({ email });
-    } else {
+    // Vérifie si email et mdp sont saisis
+    if (!email || !password) {
       throw new Error("Identifiants invalides");
     }
+
+    // Crée un utilisateur avec email
+    const user: User = { email };
+
+    // Update l'utilisateur connecté et sauvegarde ses infos
+    setUser(user);
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("token", "fake-jwt-token");
   };
 
-  // Logout : réinitialise l'utilisateur
+  // ======== Logout et supprime les infos stockées
   const logout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
     setUser(null);
   };
 
@@ -40,6 +69,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         login,
         logout,
         isAuthenticated: !!user,
+        loading,
       }}
     >
       {children}

@@ -23,9 +23,9 @@ export default function Reservations() {
   // Colonnes de la DataTable
   const columns: Column<Reservation>[] = [
     { key: "id", label: "ID" },
-    { key: "customer", label: "Customer" },
+    { key: "customer", label: "Client" },
     { key: "date", label: "Date" },
-    { key: "status", label: "Status" },
+    { key: "status", label: "Statut" },
   ];
 
   // ======== Réservations à afficher sur la page courante
@@ -35,7 +35,7 @@ export default function Reservations() {
   // ======== Rendu JSX de la page
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">Reservations</h2>
+      <h2 className="text-xl font-bold mb-4">Réservations</h2>
       <DataTable
         columns={columns}
         data={paginated}
@@ -43,10 +43,10 @@ export default function Reservations() {
           (/*row*/) => (
             <div className="space-x-2">
               <button className="px-2 py-1 bg-blue-500 text-white rounded">
-                Edit
+                Modifier
               </button>
               <button className="px-2 py-1 bg-red-500 text-white rounded">
-                Delete
+                Supprimer
               </button>
             </div>
           )

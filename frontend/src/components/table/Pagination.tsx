@@ -14,6 +14,7 @@ export default function Pagination({
   // Création d'un tableau de numéros de page
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
+  // ======== Rendu JSX de la Pagination
   return (
     // Conteneur flex pour les boutons de pagination
     <div className="flex space-x-2 mt-4">

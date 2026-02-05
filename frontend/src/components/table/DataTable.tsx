@@ -17,6 +17,7 @@ export default function DataTable<T>({
   data,
   actions,
 }: DataTableProps<T>) {
+  // ======== Rendu JSX de la DataTable
   return (
     <table className="min-w-full bg-white border rounded overflow-hidden">
       <thead className="bg-gray-100">

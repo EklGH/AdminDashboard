@@ -1,6 +1,6 @@
 // Import pour créer un Context React
 import { createContext } from "react";
-// Import des types (User et AuthContextType)
+// Import du type AuthContextType
 import type { AuthContextType } from "../types";
 
 // ======== Création de AuthContext
