@@ -19,33 +19,37 @@ export default function DataTable<T>({
 }: DataTableProps<T>) {
   // ======== Rendu JSX de la DataTable
   return (
-    <table className="min-w-full bg-white border rounded overflow-hidden">
-      <thead className="bg-gray-100">
-        <tr>
-          {columns.map((col) => (
-            <th
-              key={col.key as string}
-              className="text-left px-4 py-2 border-b"
-            >
-              {col.label}
-            </th>
-          ))}
-          {actions && <th className="px-4 py-2 border-b">Actions</th>}
-        </tr>
-      </thead>
-
-      <tbody>
-        {data.map((row, idx) => (
-          <tr key={idx} className="hover:bg-gray-50">
+    <div className="overflow-x-auto">
+      <table className="min-w-full bg-white border rounded overflow-hidden">
+        <thead className="bg-gray-100">
+          <tr>
             {columns.map((col) => (
-              <td key={col.key as string} className="px-4 py-2 border-b">
-                {String(row[col.key])}
-              </td>
+              <th
+                key={col.key as string}
+                className="text-left px-4 py-2 border-b"
+              >
+                {col.label}
+              </th>
             ))}
-            {actions && <td className="px-4 py-2 border-b">{actions(row)}</td>}
+            {actions && <th className="px-4 py-2 border-b">Actions</th>}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+
+        <tbody>
+          {data.map((row, idx) => (
+            <tr key={idx} className="hover:bg-gray-50">
+              {columns.map((col) => (
+                <td key={col.key as string} className="px-4 py-2 border-b">
+                  {String(row[col.key])}
+                </td>
+              ))}
+              {actions && (
+                <td className="px-4 py-2 border-b">{actions(row)}</td>
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

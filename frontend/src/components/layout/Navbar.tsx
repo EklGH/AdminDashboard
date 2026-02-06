@@ -20,16 +20,18 @@ export default function Navbar() {
   // ======== Rendu JSX de la Navbar
   return (
     // Conteneur navbar : titre à gauche, user + logout à droite
-    <header className="h-14 bg-white border-b flex items-center px-6">
-      <h1 className="font-semibold">AdminDashboard</h1>
+    <header className="h-14 bg-white border-b flex items-center justify-between px-6">
+      <h1 className="font-bold italic text-lg">AdminDashboard</h1>
 
       {user && (
-        <div className="flex items-center space-x-4">
-          <span className="text-sm text-gray-600">{user.email}</span>
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-gray-600 truncate max-w-xs">
+            {user.email}
+          </span>
 
           <button
             onClick={handleLogout}
-            className="text-sm text-red-600 hover:underline"
+            className="text-sm text-red-600 hover:text-red-800"
           >
             Déconnexion
           </button>
