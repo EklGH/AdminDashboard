@@ -1,7 +1,7 @@
 ﻿using AdminDashboard.Application.Dtos;
 using AdminDashboard.Application.Interfaces;
 using AdminDashboard.Domain.Entities;
-using AdminDashboard.Infrastructure.Services;
+using AdminDashboard.Application.Services;
 using FluentAssertions;
 using Moq;
 

@@ -1,8 +1,8 @@
 ﻿using AdminDashboard.Application.Dtos;
-using AdminDashboard.Domain.Entities;
 using AdminDashboard.Application.Interfaces;
+using AdminDashboard.Domain.Entities;
 
-namespace AdminDashboard.Infrastructure.Services
+namespace AdminDashboard.Application.Services
 {
     public class UserService : IUserService
     {

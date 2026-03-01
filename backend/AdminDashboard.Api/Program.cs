@@ -2,7 +2,7 @@ using AdminDashboard.Application.Interfaces;
 using AdminDashboard.Infrastructure.Auth;
 using AdminDashboard.Infrastructure.Persistence;
 using AdminDashboard.Infrastructure.Repositories;
-using AdminDashboard.Infrastructure.Services;
+using AdminDashboard.Application.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -79,6 +79,8 @@ builder.Services.AddSwaggerGen();
 
 // Repositories :
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 
 // Auth :
 builder.Services.AddScoped<IJwtService, JwtService>();
@@ -87,6 +89,8 @@ builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
 // Services :
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IReservationService, ReservationService>();
 
 
 
