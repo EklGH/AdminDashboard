@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="HotChocolate.AspNetCore" Version="13.*" />
+    <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="13.*" />
     <PackageReference Include="HotChocolate.Data" Version="13.*" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.*" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.*">
@@ -21,10 +22,6 @@
   <ItemGroup>
     <ProjectReference Include="..\AdminDashboard.Application\AdminDashboard.Application.csproj" />
     <ProjectReference Include="..\AdminDashboard.Infrastructure\AdminDashboard.Infrastructure.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="GraphQL\" />
   </ItemGroup>
 
 </Project>

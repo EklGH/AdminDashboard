@@ -2,6 +2,7 @@
 using AdminDashboard.Infrastructure.Persistence;
 using AdminDashboard.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace AdminDashboard.Tests.Unit
 {
@@ -10,21 +11,22 @@ namespace AdminDashboard.Tests.Unit
         // DbContext Factory
         private static class DbContextTestFactory
         {
-            public static AppDbContext Create(string dbName)
+            public static IDbContextFactory<AppDbContext> CreateFactory(string dbName)
             {
                 var options = new DbContextOptionsBuilder<AppDbContext>()
                     .UseInMemoryDatabase(dbName)
                     .EnableSensitiveDataLogging()
                     .Options;
 
-                return new AppDbContext(options);
+                return new PooledDbContextFactory<AppDbContext>(options);
             }
         }
 
 
         // Créer un rôle (helper pour tests)
-        private static Role CreateRole(AppDbContext context, string name = "User")
+        private static async Task<Role> CreateRoleAsync(IDbContextFactory<AppDbContext> factory, string name = "User")
         {
+            await using var context = await factory.CreateDbContextAsync();
             var role = new Role
             {
                 Id = Guid.NewGuid(),
@@ -32,7 +34,7 @@ namespace AdminDashboard.Tests.Unit
             };
 
             context.Roles.Add(role);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
             return role;
         }
@@ -47,10 +49,11 @@ namespace AdminDashboard.Tests.Unit
         public async Task CreateAsync_ShouldPersistUser_WithRole()
         {
             // Arrange
-            using var context = DbContextTestFactory.Create(nameof(CreateAsync_ShouldPersistUser_WithRole));
+            var factory = DbContextTestFactory.CreateFactory(nameof(CreateAsync_ShouldPersistUser_WithRole));
+            await using var context = await factory.CreateDbContextAsync();
             var repo = new UserRepository(context);
 
-            var role = CreateRole(context, "Admin");
+            var role = await CreateRoleAsync(factory, "Admin");
 
             var user = new User
             {
@@ -78,10 +81,11 @@ namespace AdminDashboard.Tests.Unit
         public async Task EmailExistsAsync_ShouldReturnTrue_WhenEmailExists()
         {
             // Arrange
-            using var context = DbContextTestFactory.Create(nameof(EmailExistsAsync_ShouldReturnTrue_WhenEmailExists));
+            var factory = DbContextTestFactory.CreateFactory(nameof(EmailExistsAsync_ShouldReturnTrue_WhenEmailExists));
+            await using var context = await factory.CreateDbContextAsync();
             var repo = new UserRepository(context);
 
-            var role = CreateRole(context);
+            var role = await CreateRoleAsync(factory);
 
             context.Users.Add(new User
             {
@@ -90,7 +94,6 @@ namespace AdminDashboard.Tests.Unit
                 PasswordHash = "hash",
                 RoleId = role.Id
             });
-
             await context.SaveChangesAsync();
 
             // Act
@@ -107,10 +110,11 @@ namespace AdminDashboard.Tests.Unit
         public async Task GetByEmailAsync_ShouldReturnUser_WithRole()
         {
             // Arrange
-            using var context = DbContextTestFactory.Create(nameof(GetByEmailAsync_ShouldReturnUser_WithRole));
+            var factory = DbContextTestFactory.CreateFactory(nameof(GetByEmailAsync_ShouldReturnUser_WithRole));
+            await using var context = await factory.CreateDbContextAsync();
             var repo = new UserRepository(context);
 
-            var role = CreateRole(context);
+            var role = await CreateRoleAsync(factory);
 
             context.Users.Add(new User
             {
@@ -138,10 +142,12 @@ namespace AdminDashboard.Tests.Unit
         public async Task DeleteAsync_ShouldRemoveUser_WhenUserExists()
         {
             // Arrange
-            using var context = DbContextTestFactory.Create(nameof(DeleteAsync_ShouldRemoveUser_WhenUserExists));
+            var factory = DbContextTestFactory.CreateFactory(nameof(DeleteAsync_ShouldRemoveUser_WhenUserExists));
+            await using var context = await factory.CreateDbContextAsync();
             var repo = new UserRepository(context);
 
-            var role = CreateRole(context);
+            var role = await CreateRoleAsync(factory);
+         
             var userId = Guid.NewGuid();
 
             context.Users.Add(new User
@@ -168,7 +174,8 @@ namespace AdminDashboard.Tests.Unit
         public async Task DeleteAsync_ShouldNotThrow_WhenUserDoesNotExist()
         {
             // Arrange
-            using var context = DbContextTestFactory.Create(nameof(DeleteAsync_ShouldNotThrow_WhenUserDoesNotExist));
+            var factory = DbContextTestFactory.CreateFactory(nameof(DeleteAsync_ShouldNotThrow_WhenUserDoesNotExist));
+            await using var context = await factory.CreateDbContextAsync();
             var repo = new UserRepository(context);
 
             // Act / Assert
@@ -186,7 +193,8 @@ namespace AdminDashboard.Tests.Unit
         public async Task GetDefaultRoleAsync_ShouldCreateRole_WhenNotExists()
         {
             // Arrange
-            using var context = DbContextTestFactory.Create(nameof(GetDefaultRoleAsync_ShouldCreateRole_WhenNotExists));
+            var factory = DbContextTestFactory.CreateFactory(nameof(GetDefaultRoleAsync_ShouldCreateRole_WhenNotExists));
+            await using var context = await factory.CreateDbContextAsync();
             var repo = new UserRepository(context);
 
             // Act
@@ -205,10 +213,11 @@ namespace AdminDashboard.Tests.Unit
         public async Task GetDefaultRoleAsync_ShouldReturnExistingRole_WhenExists()
         {
             // Arrange
-            using var context = DbContextTestFactory.Create(nameof(GetDefaultRoleAsync_ShouldReturnExistingRole_WhenExists));
+            var factory = DbContextTestFactory.CreateFactory(nameof(GetDefaultRoleAsync_ShouldReturnExistingRole_WhenExists));
+            await using var context = await factory.CreateDbContextAsync();
             var repo = new UserRepository(context);
 
-            CreateRole(context, "User");
+            await CreateRoleAsync(factory, "User");
 
             // Act
             var role = await repo.GetDefaultRoleAsync();
@@ -225,9 +234,9 @@ namespace AdminDashboard.Tests.Unit
         public async Task RefreshTokens_ShouldCascadeDelete_WhenUserDeleted()
         {
             // Arrange
-            using var context = DbContextTestFactory.Create(nameof(RefreshTokens_ShouldCascadeDelete_WhenUserDeleted));
-
-            var role = CreateRole(context);
+            var factory = DbContextTestFactory.CreateFactory(nameof(RefreshTokens_ShouldCascadeDelete_WhenUserDeleted));
+            await using var context = await factory.CreateDbContextAsync();
+            var role = await CreateRoleAsync(factory);
 
             var user = new User
             {
@@ -266,8 +275,9 @@ namespace AdminDashboard.Tests.Unit
         public async Task CreateAsync_ShouldPersistProduct()
         {
             // Arrange
-            using var context = DbContextTestFactory.Create(nameof(CreateAsync_ShouldPersistProduct));
-            var repo = new ProductRepository(context);
+            var factory = DbContextTestFactory.CreateFactory(nameof(CreateAsync_ShouldPersistProduct));
+            await using var context = await factory.CreateDbContextAsync();
+            var repo = new ProductRepository(factory);
 
             var product = new Product
             {
@@ -294,8 +304,9 @@ namespace AdminDashboard.Tests.Unit
         public async Task GetPaginatedAsync_ShouldReturnCorrectPage()
         {
             // Arrange
-            using var context = DbContextTestFactory.Create(nameof(GetPaginatedAsync_ShouldReturnCorrectPage));
-            var repo = new ProductRepository(context);
+            var factory = DbContextTestFactory.CreateFactory(nameof(GetPaginatedAsync_ShouldReturnCorrectPage));
+            await using var context = await factory.CreateDbContextAsync();
+            var repo = new ProductRepository(factory);
 
             for (int i = 1; i <= 10; i++)
             {
@@ -326,8 +337,9 @@ namespace AdminDashboard.Tests.Unit
         public async Task UpdateAsync_ShouldUpdateProductFields()
         {
             // Arrange
-            using var context = DbContextTestFactory.Create(nameof(UpdateAsync_ShouldUpdateProductFields));
-            var repo = new ProductRepository(context);
+            var factory = DbContextTestFactory.CreateFactory(nameof(UpdateAsync_ShouldUpdateProductFields));
+            await using var context = await factory.CreateDbContextAsync();
+            var repo = new ProductRepository(factory);
 
             var product = new Product
             {
@@ -359,8 +371,9 @@ namespace AdminDashboard.Tests.Unit
         public async Task DeleteAsync_ShouldRemoveProduct()
         {
             // Arrange
-            using var context = DbContextTestFactory.Create(nameof(DeleteAsync_ShouldRemoveProduct));
-            var repo = new ProductRepository(context);
+            var factory = DbContextTestFactory.CreateFactory(nameof(DeleteAsync_ShouldRemoveProduct));
+            await using var context = await factory.CreateDbContextAsync();
+            var repo = new ProductRepository(factory);
 
             var product = new Product
             {
@@ -391,10 +404,12 @@ namespace AdminDashboard.Tests.Unit
         public async Task CreateAsync_ShouldPersistReservation_WithProductAndUser()
         {
             // Arrange
-            using var context = DbContextTestFactory.Create(nameof(CreateAsync_ShouldPersistReservation_WithProductAndUser));
+            var factory = DbContextTestFactory.CreateFactory(nameof(CreateAsync_ShouldPersistReservation_WithProductAndUser));
+            await using var context = await factory.CreateDbContextAsync();
             var repo = new ReservationRepository(context);
 
-            var role = CreateRole(context);
+            var role = await CreateRoleAsync(factory);
+  
             var user = new User
             {
                 Id = Guid.NewGuid(),
@@ -445,7 +460,8 @@ namespace AdminDashboard.Tests.Unit
         public async Task UpdateAsync_ShouldUpdateReservationFields()
         {
             // Arrange
-            using var context = DbContextTestFactory.Create(nameof(UpdateAsync_ShouldUpdateReservationFields));
+            var factory = DbContextTestFactory.CreateFactory(nameof(UpdateAsync_ShouldUpdateReservationFields));
+            await using var context = await factory.CreateDbContextAsync();
             var repo = new ReservationRepository(context);
 
             var product = new Product
@@ -489,7 +505,8 @@ namespace AdminDashboard.Tests.Unit
         public async Task DeleteAsync_ShouldDeleteReservation()
         {
             // Arrange
-            using var context = DbContextTestFactory.Create(nameof(DeleteAsync_ShouldDeleteReservation));
+            var factory = DbContextTestFactory.CreateFactory(nameof(DeleteAsync_ShouldDeleteReservation));
+            await using var context = await factory.CreateDbContextAsync();
             var repo = new ReservationRepository(context);
 
             var product = new Product
@@ -531,7 +548,8 @@ namespace AdminDashboard.Tests.Unit
         public async Task DeleteProduct_ShouldCascadeDeleteReservations()
         {
             // Arrange
-            using var context = DbContextTestFactory.Create(nameof(DeleteProduct_ShouldCascadeDeleteReservations));
+            var factory = DbContextTestFactory.CreateFactory(nameof(DeleteProduct_ShouldCascadeDeleteReservations));
+            await using var context = await factory.CreateDbContextAsync();
 
             var product = new Product
             {

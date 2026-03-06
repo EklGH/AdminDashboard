@@ -1,12 +1,15 @@
+using AdminDashboard.Api.GraphQL;
 using AdminDashboard.Application.Interfaces;
+using AdminDashboard.Application.Services;
 using AdminDashboard.Infrastructure.Auth;
 using AdminDashboard.Infrastructure.Persistence;
 using AdminDashboard.Infrastructure.Repositories;
-using AdminDashboard.Application.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,7 +32,7 @@ if (string.IsNullOrEmpty(connectionString))
 }
 
 // DI DbContext
-builder.Services.AddDbContext<AppDbContext>(opt =>
+builder.Services.AddDbContextFactory<AppDbContext>(opt =>
     opt.UseNpgsql(connectionString));
 
 
@@ -94,6 +97,20 @@ builder.Services.AddScoped<IReservationService, ReservationService>();
 
 
 
+// ======== GRAPHQL
+
+builder.Services
+    .AddGraphQLServer()
+    .AddAuthorization()
+    .AddQueryType<ProductQuery>()
+    .AddType<ProductType>()
+    .AddType<PaginatedProductType>()
+    .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true)
+    .AddFiltering()
+    .AddSorting();
+
+
+
 
 // ======== DOCKER PORT / Kestrel
 
@@ -123,6 +140,7 @@ if (!isDesignTime)
     app.UseAuthentication();
     app.UseAuthorization();
     app.MapControllers();
+    app.MapGraphQL("/graphql");
 }
 
 
@@ -132,7 +150,8 @@ if (!isDesignTime)
 if (app.Environment.IsDevelopment() && !isDesignTime)
 {
     using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var dbFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<AppDbContext>>();
+    var db = await dbFactory.CreateDbContextAsync();
 
     // Retry (*10) pour la DB
     var retries = 10;
