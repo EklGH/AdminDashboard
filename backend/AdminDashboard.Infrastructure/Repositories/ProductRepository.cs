@@ -7,12 +7,12 @@ namespace AdminDashboard.Infrastructure.Repositories
 {
     public class ProductRepository : IProductRepository
     {
-        private readonly AppDbContext _db;
+        private readonly IDbContextFactory<AppDbContext> _dbFactory;
 
         // Constructeur
-        public ProductRepository(AppDbContext db)
+        public ProductRepository(IDbContextFactory<AppDbContext> dbFactory)
         {
-            _db = db;
+            _dbFactory = dbFactory;
         }
 
 
@@ -20,7 +20,8 @@ namespace AdminDashboard.Infrastructure.Repositories
         // ======== GetAll
         public async Task<IEnumerable<Product>> GetAllAsync()
         {
-            return await _db.Products.ToListAsync();
+            await using var db = await _dbFactory.CreateDbContextAsync();
+            return await db.Products.ToListAsync();
         }
 
 
@@ -28,8 +29,9 @@ namespace AdminDashboard.Infrastructure.Repositories
         // ======== GetPaginated
         public async Task<(IEnumerable<Product> Items, int TotalItems)> GetPaginatedAsync(int page, int pageSize)
         {
-            var totalItems = await _db.Products.CountAsync();
-            var items = await _db.Products
+            await using var db = await _dbFactory.CreateDbContextAsync();
+            var totalItems = await db.Products.CountAsync();
+            var items = await db.Products
                                  .OrderBy(p => p.Name)
                                  .Skip((page - 1) * pageSize)
                                  .Take(pageSize)
@@ -43,7 +45,8 @@ namespace AdminDashboard.Infrastructure.Repositories
         // ======== GetById
         public async Task<Product?> GetByIdAsync(Guid id)
         {
-            return await _db.Products.FindAsync(id);
+            await using var db = await _dbFactory.CreateDbContextAsync();
+            return await db.Products.FindAsync(id);
         }
 
 
@@ -51,9 +54,10 @@ namespace AdminDashboard.Infrastructure.Repositories
         // ======== Create
         public async Task<Product> CreateAsync(Product product)
         {
+            await using var db = await _dbFactory.CreateDbContextAsync();
             product.Id = Guid.NewGuid();
-            _db.Products.Add(product);
-            await _db.SaveChangesAsync();
+            db.Products.Add(product);
+            await db.SaveChangesAsync();
             return product;
         }
 
@@ -62,15 +66,16 @@ namespace AdminDashboard.Infrastructure.Repositories
         // ======== Update
         public async Task<Product> UpdateAsync(Product product)
         {
-            var existing = await _db.Products.FindAsync(product.Id);
-            if (existing == null) throw new KeyNotFoundException("Product not found");
+            await using var db = await _dbFactory.CreateDbContextAsync();
+            var existing = await db.Products.FindAsync(product.Id);
+            if (existing == null) throw new KeyNotFoundException("Produit inexistant");
 
             existing.Name = product.Name;
             existing.Category = product.Category;
             existing.Price = product.Price;
             existing.Stock = product.Stock;
 
-            await _db.SaveChangesAsync();
+            await db.SaveChangesAsync();
             return existing;
         }
 
@@ -79,11 +84,12 @@ namespace AdminDashboard.Infrastructure.Repositories
         // ======== Delete
         public async Task DeleteAsync(Guid id)
         {
-            var product = await _db.Products.FindAsync(id);
-            if (product == null) throw new KeyNotFoundException("Product not found");
+            await using var db = await _dbFactory.CreateDbContextAsync();
+            var product = await db.Products.FindAsync(id);
+            if (product == null) throw new KeyNotFoundException("Produit inexistant");
 
-            _db.Products.Remove(product);
-            await _db.SaveChangesAsync();
+            db.Products.Remove(product);
+            await db.SaveChangesAsync();
         }
 
 
@@ -91,7 +97,8 @@ namespace AdminDashboard.Infrastructure.Repositories
         // ======== Exists
         public async Task<bool> ExistsAsync(Guid id)
         {
-            return await _db.Products.AnyAsync(p => p.Id == id);
+            await using var db = await _dbFactory.CreateDbContextAsync();
+            return await db.Products.AnyAsync(p => p.Id == id);
         }
     }
 }
