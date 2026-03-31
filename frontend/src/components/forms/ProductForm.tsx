@@ -1,13 +1,14 @@
 // Import React Hooks
-import { useState } from "react";
-// Import du type Product
-import type { Product } from "../../types";
+import { useEffect, useState } from "react";
+// Imports des types et DTOs
+import type { Product, ProductCreateDto, ProductUpdateDto } from "../../types";
 
 // Interface ProductForm
 interface ProductFormProps {
   product?: Product | null;
-  onSubmit: (product: Product) => void;
+  onSubmit: (dto: ProductCreateDto | ProductUpdateDto, id?: string) => void;
   onCancel: () => void;
+  loading?: boolean;
 }
 
 // ======== Composant ProductForm
@@ -15,98 +16,129 @@ export default function ProductForm({
   product,
   onSubmit,
   onCancel,
+  loading,
 }: ProductFormProps) {
+  const isEdit = !!product?.id;
   // Valeurs initiales des champs du formulaire
-  const [form, setForm] = useState<Product>(
-    () => product ?? { id: 0, name: "", category: "", price: 0, stock: 0 },
-  );
+  const [form, setForm] = useState<ProductCreateDto>(() => ({
+    name: product?.name ?? "",
+    category: product?.category ?? "",
+    price: product?.price ?? 0,
+    stock: product?.stock ?? 0,
+  }));
+
+  const [touched, setTouched] = useState(false);
+
+  const isValid =
+    form.name.trim() &&
+    form.category.trim() &&
+    form.price !== undefined &&
+    form.stock !== undefined;
+
+  useEffect(() => {
+    const input = document.getElementById("product-name");
+    input?.focus();
+  }, []);
 
   // Update un champ spécifique à chaque saisie
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Récupère le nom et la valeur du champ modifié
     const { name, value } = e.target;
+
     setForm((prev) => ({
       ...prev,
-      [name]: name === "price" || name === "stock" ? Number(value) : value,
+      [name]:
+        name === "price" || name === "stock"
+          ? value === ""
+            ? undefined
+            : Math.max(0, Number(value))
+          : value,
     }));
+    setTouched(true);
   };
 
   // Envoi du formulaire
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(form);
+    if (!isValid) return;
+
+    if (isEdit && product?.id) {
+      onSubmit(form as ProductUpdateDto, product.id);
+    } else {
+      onSubmit(form as ProductCreateDto);
+    }
   };
 
   // ======== Rendu JSX du formulaire
   return (
-    <div className="bg-white p-6 rounded shadow-md mb-6">
-      <h3 className="text-lg font-semibold mb-4">
-        {product && product.id !== 0
-          ? "Modifier le produit"
-          : "Ajouter un produit"}
-      </h3>
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center p-4">
+      <div className="w-full max-w-lg bg-white rounded-xl shadow-xl p-6 animate-fadeIn">
+        <h3 className="text-lg font-semibold mb-4">
+          {isEdit ? "Modifier le produit" : "Ajouter un produit"}
+        </h3>
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-4"
-        onKeyDown={(e) => {
-          if (e.key === "Enter") e.preventDefault();
-        }}
-      >
-        <input
-          name="name"
-          placeholder="Nom du produit"
-          value={form.name}
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded"
-          required
-        />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            id="product-name"
+            name="name"
+            placeholder="Nom"
+            value={form.name}
+            onChange={handleChange}
+            className="w-full border px-3 py-2 rounded"
+          />
 
-        <input
-          name="category"
-          placeholder="Catégorie"
-          value={form.category}
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded"
-          required
-        />
+          <input
+            name="category"
+            placeholder="Catégorie"
+            value={form.category}
+            onChange={handleChange}
+            className="w-full border px-3 py-2 rounded"
+          />
 
-        <input
-          name="price"
-          type="number"
-          placeholder="Prix"
-          value={form.price === 0 ? "" : form.price}
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded"
-          required
-        />
+          <input
+            name="price"
+            type="number"
+            placeholder="Prix"
+            value={form.price ?? ""}
+            onChange={handleChange}
+            className="w-full border px-3 py-2 rounded"
+          />
 
-        <input
-          name="stock"
-          type="number"
-          placeholder="Stock"
-          value={form.stock === 0 ? "" : form.stock}
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded"
-          required
-        />
+          <input
+            name="stock"
+            type="number"
+            placeholder="Stock"
+            value={form.stock ?? ""}
+            onChange={handleChange}
+            className="w-full border px-3 py-2 rounded"
+          />
 
-        <div className="flex space-x-2">
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"
-          >
-            Enregistrer
-          </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="bg-gray-300 text-gray-800 px-4 py-2 rounded shadow hover:bg-gray-400"
-          >
-            Annuler
-          </button>
-        </div>
-      </form>
+          {/* Actions */}
+          <div className="flex flex-col sm:flex-row gap-2">
+            <button
+              type="submit"
+              disabled={!isValid || loading}
+              className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+            >
+              {loading ? "Sauvegarde..." : "Enregistrer"}
+            </button>
+
+            <button
+              type="button"
+              onClick={onCancel}
+              className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
+            >
+              Annuler
+            </button>
+          </div>
+
+          {/* Edge case feedback */}
+          {touched && !isValid && (
+            <p className="text-red-500 text-sm">
+              Tous les champs sont obligatoires
+            </p>
+          )}
+        </form>
+      </div>
     </div>
   );
 }

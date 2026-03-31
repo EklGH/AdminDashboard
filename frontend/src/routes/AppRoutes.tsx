@@ -7,13 +7,20 @@ import Products from "../pages/Products";
 import Reservations from "../pages/Reservations";
 import Login from "../pages/Login";
 import ProtectedRoute from "./ProtectedRoute";
+import { useAuth } from "../context/useAuth";
 
 // ======== Routes principales de l'application
 export default function AppRoutes() {
+  const { isAuthenticated } = useAuth();
   return (
     // Englobe toutes les routes de l'application
     <Routes>
-      <Route path="/login" element={<Login />} />
+      <Route
+        path="/login"
+        element={
+          isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />
+        }
+      />
       <Route
         element={
           <ProtectedRoute>

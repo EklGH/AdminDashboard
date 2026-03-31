@@ -35,6 +35,18 @@ if (string.IsNullOrEmpty(connectionString))
 builder.Services.AddDbContextFactory<AppDbContext>(opt =>
     opt.UseNpgsql(connectionString));
 
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 
 
 // ======== JWT / AUTHENTICATION
@@ -129,8 +141,8 @@ var app = builder.Build();
 
 // ======== MIDDLEWARE
 
-if (!isDesignTime)
-{
+    app.UseCors("AllowFrontend");
+
     if (app.Environment.IsDevelopment())
     {
         app.UseSwagger();
@@ -141,7 +153,6 @@ if (!isDesignTime)
     app.UseAuthorization();
     app.MapControllers();
     app.MapGraphQL("/graphql");
-}
 
 
 
