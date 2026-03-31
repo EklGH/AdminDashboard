@@ -1,5 +1,5 @@
 // Import de Navigate pour rediriger l'utilisateur
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 // Import du hook useAuth pour gérer l’authentification
 import { useAuth } from "../context/useAuth";
 // Import du type ReactNode
@@ -9,8 +9,9 @@ import type { ReactNode } from "react";
 export default function ProtectedRoute({ children }: { children: ReactNode }) {
   // Récupère l'état d'authentification global et l'état de chargement
   const { isAuthenticated, loading } = useAuth();
+  const location = useLocation();
 
-  // Si l'état d'auth n'est pas encore déterminé -> afficher un loader
+  // Affiche un loader si l'état d'auth non déterminé
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">
@@ -19,9 +20,9 @@ export default function ProtectedRoute({ children }: { children: ReactNode }) {
     );
   }
 
-  // Si l'utilisateur n'est pas authentifié -> page Login
+  // Si l'utilisateur n'est pas authentifié
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
   return children;
 }
