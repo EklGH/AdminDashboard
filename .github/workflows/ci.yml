@@ -93,6 +93,20 @@ jobs:
     # ======== Test docker-compose (check API+GraphQL)
     - name: Start docker-compose
       run: docker compose up -d
+      env:
+        POSTGRES_DB: ${{ vars.POSTGRES_DB }}
+        POSTGRES_USER: ${{ vars.POSTGRES_USER }}
+        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        POSTGRES_PORT: ${{ vars.POSTGRES_PORT }}
+        POSTGRES_HOST: ${{ vars.POSTGRES_HOST }}
+
+        JWT_KEY: ${{ secrets.JWT_KEY }}
+        JWT_ISSUER: ${{ vars.JWT_ISSUER }}
+        JWT_AUDIENCE: ${{ vars.JWT_AUDIENCE }}
+        JWT_ACCESS_TOKEN_MINUTES: ${{ vars.JWT_ACCESS_TOKEN_MINUTES }}
+        JWT_REFRESH_TOKEN_DAYS: ${{ vars.JWT_REFRESH_TOKEN_DAYS }}
+
+        ASPNETCORE_ENVIRONMENT: ${{ vars.ASPNETCORE_ENVIRONMENT }}
 
     - name: Wait for API to be ready
       run: |
