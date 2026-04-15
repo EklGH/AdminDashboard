@@ -5,8 +5,6 @@ services:
     image: postgres:16
     container_name: admindashboard-db
     restart: always
-    env_file:
-      - ./.env
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -29,8 +27,6 @@ services:
     restart: always
     depends_on:
       - db
-    env_file:
-      - ./.env
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__Default: Host=${POSTGRES_HOST};Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
