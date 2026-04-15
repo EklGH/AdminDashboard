@@ -1,315 +1,172 @@
-﻿###### AdminDashboard – Fullstack .NET + React + Docker
+﻿# AdminDashboard - Fullstack (.NET/React/Docker)
+![.NET](https://img.shields.io/badge/.NET-9-blue)
+![React](https://img.shields.io/badge/React-TypeScript-blue)
+![Docker](https://img.shields.io/badge/Docker-ready-blue)
 
+AdminDashboard est une application fullstack permettant de gérer produits et réservations avec une API REST+GraphQL sécurisée déployable via Docker.
 
+### Stack technique :
 
+- Backend : ASP.NET Core (.NET 9)
+- Frontend : React + TypeScript + Vite
+- API : REST + GraphQL
+- Base de données : PostgreSQL
+- Authentification : JWT (Access + Refresh tokens)
+- Infra : Docker + NGINX
 
+---
 
+## ⚙️ FONCTIONNALITES
 
+- Authentification JWT (access + refresh)
+- CRUD Produits \& Réservations
+- API REST + GraphQL
+- Pagination, filtrage, tri
+- Docker + NGINX
+- Seed automatique en développement
 
-======== PRESENTATION
+---
 
+## 🏗️ STRUCTURE
 
-
-AdminDashboard est une application fullstack prête à l’emploi permettant de gérer produits et réservations, avec une API REST+GraphQL sécurisée et déployable via Docker.
-
-
-
-Stack technique :
-
-Backend : ASP.NET Core (.NET 9)
-
-Frontend : React + TypeScript + Vite
-API : REST + GraphQL
-
-Base de données : PostgreSQL
-
-Authentification : JWT (Access + Refresh tokens)
-
-Infra : Docker + Docker Compose + NGINX (reverse proxy)
-
-
-
-
-
-
-
-======== FONCTIONNALITES
-
-
-
-Authentification JWT (access + refresh)
-
-CRUD Produits \& Réservations
-
-API REST + GraphQL
-
-Pagination, filtrage, tri
-
-Docker + NGINX reverse proxy
-
-Seed automatique en développement
-
-
-
-
-
-
-
-======== STRUCTURE
-
-
-
+```
 AdminDashboard/
-
 ├── backend/                            # API .NET 9 (REST+GraphQL)
-
 │   ├── AdminDashboard.Api/             # Controllers REST, GraphQL, Program.cs, Dockerfile
-
 │   ├── AdminDashboard.Application/     # DTOs, Services, Interfaces
-
 │   ├── AdminDashboard.Domain/          # Entities
-
 │   ├── AdminDashboard.Infrastructure/  # DB, Auth, Repositories
-
 │   └── AdminDashboard.Tests/           # Tests unitaires
-
 │
-
 ├── frontend/                           # React + Vite + TypeScript
-
 │   ├── src/                            # components, pages, hooks, services, context, types
-
 │   ├── public/
-
 │   ├── .env                            # .env front Vite
-
 │   └── Dockerfile
-
 │
-
 ├── nginx/                              # Reverse proxy (Docker)
 ├── .github/                            # ci, cd commenté
-
 ├── docker-compose.yml
 ├── .env
-
 └── README.md
+```
 
+---
 
+## 🚀 INSTALLATION / CONFIGURATION / LANCEMENT
 
-
-
-
-
-======== INSTALLATION / CONFIGURATION / LANCEMENT
-
-
-
-Prérequis :
-
+### Prérequis :
 Docker Desktop installé
 
+### Configuration .env :
+- Créer les fichiers .env à partir des .env.example
+- AdminDashboard/.env (Docker)
+- AdminDashboard/frontend/.env (Vite)
 
-
-Configuration .env :
-Créer les fichiers .env à partir des .env.example
-AdminDashboard/.env (Docker)
-
-AdminDashboard/frontend/.env (Vite)
-
-
-
-Lancement :
+### Lancement :
 docker compose up --build
 
+### Accès :
+- Frontend : http://localhost:5173
+- API REST : http://localhost:5000/api
+- GraphQL : http://localhost:5000/graphql
+- Swagger : http://localhost:5000/swagger
 
+---
 
-Accès :
-Frontend : http://localhost:5173
+## 🔌 ENDPOINTS
 
-API REST : http://localhost:5000/api
+### REST :
 
-GraphQL : http://localhost:5000/graphql
+|Auth|
+|
+|POST|`/api/v1/Auth/register`|Création d’un compte
+|POST|`/api/v1/Auth/login`|Connexion utilisateur
+|POST|`/api/v1/Auth/refresh`|Rafraîchissement du token
 
-Swagger : http://localhost:5000/swagger
+|Products|
+|
+|GET|`/api/v1/Products?page=\&pageSize=`|Liste paginée des produits
+|GET|`/api/v1/Products/{id}`|Détail d’un produit
+|POST|`/api/v1/Products`|Création d’un produit
+|PUT|`/api/v1/Products/{id}`|Mise à jour d’un produit
+|DELETE|`/api/v1/Products/{id}`|Suppression d’un produit
 
+|Reservations|
+|
+|GET|`/api/v1/Reservations?page=\&pageSize=`|Liste paginée des réservations
+|GET|`/api/v1/Reservations/{id}`|Détail d’une réservation
+|POST|`/api/v1/Reservations`|Création d’une réservation
+|PUT|`/api/v1/Reservations/{id}`|Mise à jour
+|DELETE|`/api/v1/Reservations/{id}`|Suppression
 
+---
 
+### GraphQL :
 
-
-
-
-======== ENDPOINTS
-
-
-
-REST :
-
-
-
-Auth :
-POST	/api/v1/Auth/register	Création d’un compte
-
-POST	/api/v1/Auth/login	Connexion utilisateur
-
-POST	/api/v1/Auth/refresh	Rafraîchissement du token
-
-
-
-Products (REST) :
-GET	/api/v1/Products?page=\&pageSize=	Liste paginée des produits
-
-GET	/api/v1/Products/{id}	                Détail d’un produit
-
-POST	/api/v1/Products	                Création d’un produit
-
-PUT	/api/v1/Products/{id}	                Mise à jour d’un produit
-
-DELETE	/api/v1/Products/{id}	                Suppression d’un produit
-
-
-
-Reservations (REST) :
-
-GET	/api/v1/Reservations?page=\&pageSize=	Liste paginée des réservations
-
-GET	/api/v1/Reservations/{id}	        Détail d’une réservation
-
-POST	/api/v1/Reservations	                Création d’une réservation
-
-PUT	/api/v1/Reservations/{id}	        Mise à jour
-
-DELETE	/api/v1/Reservations/{id}	        Suppression
-
-
-
-
-
-
-
-GraphQL :
-
-
-
-Endpoint :
-
-/graphql
-
-
-
+Produits
+```
 query {
-
-&#x20; products(
-
-&#x20;   first: 10
-
-&#x20;   where: { category: { eq: "Electronics" } }
-
-&#x20;   order: \[{ price: DESC }]
-
-&#x20; ) {
-
-&#x20;   nodes {
-
-&#x20;     id
-
-&#x20;     name
-
-&#x20;     price
-
-&#x20;   }
-
-&#x20; }
-
+  products(
+    first: 10
+    where: { category: { eq: "Electronics" } }
+    order: [{ price: DESC }]
+  ) {
+    nodes {
+      id
+      name
+      price
+    }
+  }
 }
-
-
-
+```
+Filtre paginé produits
+```
 query {
-
-&#x20; paginatedProducts(input: { page: 1, pageSize: 10 }) {
-
-&#x20;   items {
-
-&#x20;     id
-
-&#x20;     name
-
-&#x20;     category
-
-&#x20;     price
-
-&#x20;     stock
-
-&#x20;   }
-
-&#x20;   totalItems
-
-&#x20; }
-
+  paginatedProducts(input: { page: 1, pageSize: 10 }) {
+    items {
+      id
+      name
+      category
+      price
+      stock
+    }
+    totalItems
+  }
 }
+```
 
+---
 
+## 🔄 CI-CD
 
+#### CI : GitHub Actions
+- Trigger CI (push+pull)
+- Checkout
+- Setup (front+back)
+- Installation dépendances (front+back)
+- Lint/Code quality (front)
+- Build (front+back)
+- Tests (back+front)
+- Build Docker (front+back)
+- Test docker-compose (check API+GraphQL)
+- Clean up Docker
 
+#### CD : Azure Container Apps (désactivé)
+- Trigger CD (push)
+- Checkout
+- Connexion Azure
+- Connexion Azure Container Registry (ACR)
+- Build Docker prod (back+front)
+- Push Docker (back+front) vers ACR
+- Déploiement (back+front) sur ACA
+- Attente que l'API REST soit prête
+- Attente que GraphQL soit prêt
+- Message de fin du pipeline
 
+---
 
+## 📄 LICENCE
 
-======== CI-CD
-
-
-
-CI : GitHub Actions
-
-
-
-Trigger CI (push+pull)
-
-Checkout
-
-Setup (front+back)
-
-Installation dépendances (front+back)
-
-Lint/Code quality (front)
-
-Build (front+back)
-
-Tests (back+front)
-
-Build Docker (front+back)
-
-Test docker-compose (check API+GraphQL)
-
-Clean up Docker
-
-
-
-
-
-
-
-CD : Azure Container Apps (désactivé)
-
-
-
-Trigger CD (push)
-
-Checkout
-
-Connexion Azure
-
-Connexion Azure Container Registry (ACR)
-
-Build Docker prod (back+front)
-
-Push Docker (back+front) vers ACR
-
-Déploiement (back+front) sur ACA
-
-Attente que l'API REST soit prête
-
-Attente que GraphQL soit prêt
-
-Message de fin du pipeline
+Projet démonstratif
 
