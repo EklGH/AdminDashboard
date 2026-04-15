@@ -29,7 +29,7 @@ WORKDIR /src/AdminDashboard.Api
 COPY --from=build /app/publish .
 
 # Port de l'application :
-EXPOSE 5000
+EXPOSE 8080
 
 # Démarre l'application :
 ENTRYPOINT ["dotnet", "AdminDashboard.Api.dll"]

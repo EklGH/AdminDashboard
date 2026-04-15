@@ -4,6 +4,7 @@ using AdminDashboard.Application.Services;
 using AdminDashboard.Infrastructure.Auth;
 using AdminDashboard.Infrastructure.Persistence;
 using AdminDashboard.Infrastructure.Repositories;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -88,6 +89,13 @@ if (!isDesignTime)
 // ======== SERVICES / CONTROLLERS
 
 builder.Services.AddControllers();
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = new UrlSegmentApiVersionReader();
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -141,18 +149,17 @@ var app = builder.Build();
 
 // ======== MIDDLEWARE
 
+if (app.Environment.IsDevelopment())
+{
     app.UseCors("AllowFrontend");
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseSwagger();
-        app.UseSwaggerUI();
-    }
-
-    app.UseAuthentication();
-    app.UseAuthorization();
-    app.MapControllers();
-    app.MapGraphQL("/graphql");
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+app.MapGraphQL("/graphql");
 
 
 
