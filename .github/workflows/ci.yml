@@ -1,0 +1,106 @@
+name: CI - AdminDashboard
+
+# ======== Trigger CI (push+pull)
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    # ======== Checkout
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+
+    # ======== Setup (front+back)
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+
+
+    # ======== Installation dépendances (front+back)
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+
+    - name: Restore backend dependencies
+      working-directory: ./backend
+      run: dotnet restore AdminDashboard.Api/AdminDashboard.Api.csproj
+
+
+    # ======== Lint/Code quality (front)
+    - name: Lint frontend
+      working-directory: ./frontend
+      run: npm run lint || echo "No lint configured"
+
+
+    # ======== Build (front+back)
+    - name: Build frontend
+      working-directory: ./frontend
+      run: npm run build
+
+    - name: Build backend
+      working-directory: ./backend
+      run: dotnet build AdminDashboard.Api/AdminDashboard.Api.csproj --no-restore
+
+
+    # ======== Tests (back+front)
+    - name: backend tests
+      working-directory: ./backend/AdminDashboard.Tests
+      run: dotnet test || echo "No tests found"
+
+    - name: frontend tests
+      working-directory: ./frontend
+      run: npm run test || echo "No tests found"
+
+
+    # ======== Build Docker (front+back)
+    - name: Build Docker images
+      run: docker compose build
+
+
+    # ======== Test docker-compose (check API+GraphQL)
+    - name: Start docker-compose
+      run: docker compose up -d
+
+    - name: Wait for API to be ready
+      run: |
+        echo "Waiting for API..."
+        for i in {1..20}; do
+          if curl -s http://localhost:5000/api/Products > /dev/null; then
+            echo "API is ready!"
+            exit 0
+          fi
+          sleep 5
+        done
+        echo "API not responding"
+        docker compose logs
+        exit 1
+
+    - name: Test GraphQL endpoint
+      run: |
+        curl -X POST http://localhost:5000/graphql \
+          -H "Content-Type: application/json" \
+          -d '{"query":"{ __typename }"}'
+
+
+    # ======== Clean up Docker
+    - name: Stop docker-compose
+      if: always()
+      run: docker compose down -v

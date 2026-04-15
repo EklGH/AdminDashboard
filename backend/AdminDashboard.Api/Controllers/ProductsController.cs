@@ -1,12 +1,14 @@
 ﻿using AdminDashboard.Application.Dtos;
 using AdminDashboard.Application.Interfaces;
-using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AdminDashboard.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [Authorize]
     public class ProductsController : ControllerBase
     {

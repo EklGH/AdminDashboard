@@ -6,7 +6,7 @@ services:
     container_name: admindashboard-db
     restart: always
     env_file:
-      - .env
+      - ./.env
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -24,13 +24,13 @@ services:
   api:
     container_name: admindashboard-api
     build:
-      context: .
+      context: ./backend
       dockerfile: AdminDashboard.Api/Dockerfile
     restart: always
     depends_on:
       - db
     env_file:
-      - .env
+      - ./.env
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ConnectionStrings__Default: Host=${POSTGRES_HOST};Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
@@ -41,6 +41,24 @@ services:
       Jwt__RefreshTokenDays: ${JWT_REFRESH_TOKEN_DAYS}
     ports:
       - "5000:8080"
+    networks:
+      - admindashboard-network
+
+
+
+# ======== Frontend Vite + NGINX
+  frontend:
+    container_name: admindashboard-frontend
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_API_URL: http://admindashboard-api:8080/api
+    restart: always
+    depends_on:
+      - api
+    ports:
+      - "5173:80"
     networks:
       - admindashboard-network
 

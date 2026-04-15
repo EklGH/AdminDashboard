@@ -13,7 +13,7 @@ const GRAPHQL_URL =
 
 // ======== Interceptor pour ajouter le token si présent
 const authLink = new SetContextLink((prevContext) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("authToken");
   return {
     ...prevContext,
     headers: {
