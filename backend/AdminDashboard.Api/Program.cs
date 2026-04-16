@@ -22,11 +22,11 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("Default");
 if (string.IsNullOrEmpty(connectionString))
 {
-    var host = builder.Configuration["POSTGRES_HOST"] ?? "db";
-    var port = builder.Configuration["POSTGRES_PORT"] ?? "5432";
-    var db = builder.Configuration["POSTGRES_DB"] ?? "admindashboard";
-    var user = builder.Configuration["POSTGRES_USER"] ?? "postgres";
-    var password = builder.Configuration["POSTGRES_PASSWORD"] ?? "postgres";
+    var host = builder.Configuration["Postgres:Host"] ?? "db";
+    var port = builder.Configuration["Postgres:Port"] ?? "5432";
+    var db = builder.Configuration["Postgres:Database"] ?? "admindashboard";
+    var user = builder.Configuration["Postgres:User"] ?? "postgres";
+    var password = builder.Configuration["Postgres:Password"] ?? "postgres";
     
     // Chaîne de connexion PostgreSQL
     connectionString = $"Host={host};Port={port};Database={db};Username={user};Password={password}";
@@ -56,9 +56,9 @@ builder.Services.AddCors(options =>
 var isDesignTime = Environment.GetCommandLineArgs().Any(arg => arg.Contains("ef"));
 
 // Paramètres JWT (variables .env)
-var jwtKey = isDesignTime ? "DummyKeyForEfDesignTime123!" : builder.Configuration["JWT_KEY"] ?? throw new InvalidOperationException("JWT Key non configurée");
-var jwtIssuer = builder.Configuration["JWT_ISSUER"] ?? "AdminDashboardBack";
-var jwtAudience = builder.Configuration["JWT_AUDIENCE"] ?? "AdminDashboardFront";
+var jwtKey = isDesignTime ? "DummyKeyForEfDesignTime123!" : builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key non configurée");
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "AdminDashboardBack";
+var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "AdminDashboardFront";
 
 // Configuration JWT runtime uniquement (ignore EF Core)
 if (!isDesignTime)

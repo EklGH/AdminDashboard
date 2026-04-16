@@ -64,7 +64,7 @@ Docker Desktop installé
 - AdminDashboard/frontend/.env (Vite)
 
 ### Lancement :
-docker compose up --build
+docker compose --env-file .env up --build
 
 ### Accès :
 - Frontend : http://localhost:5173
@@ -78,27 +78,30 @@ docker compose up --build
 
 ### REST :
 
-|Auth|
-|
-|POST|`/api/v1/Auth/register`|Création d’un compte
-|POST|`/api/v1/Auth/login`|Connexion utilisateur
-|POST|`/api/v1/Auth/refresh`|Rafraîchissement du token
+#### Auth
+|Méthode|Endpoint|Description|
+|---|---|---|
+|POST|`/api/v1/Auth/register`|Création d’un compte|
+|POST|`/api/v1/Auth/login`|Connexion utilisateur|
+|POST|`/api/v1/Auth/refresh`|Rafraîchissement du token|
 
-|Products|
-|
-|GET|`/api/v1/Products?page=\&pageSize=`|Liste paginée des produits
-|GET|`/api/v1/Products/{id}`|Détail d’un produit
-|POST|`/api/v1/Products`|Création d’un produit
-|PUT|`/api/v1/Products/{id}`|Mise à jour d’un produit
-|DELETE|`/api/v1/Products/{id}`|Suppression d’un produit
+#### Products
+|Méthode|Endpoint|Description|
+|---|---|---|
+|GET|`/api/v1/Products?page=\&pageSize=`|Liste paginée des produits|
+|GET|`/api/v1/Products/{id}`|Détail d’un produit|
+|POST|`/api/v1/Products`|Création d’un produit|
+|PUT|`/api/v1/Products/{id}`|Mise à jour d’un produit|
+|DELETE|`/api/v1/Products/{id}`|Suppression d’un produit|
 
-|Reservations|
-|
-|GET|`/api/v1/Reservations?page=\&pageSize=`|Liste paginée des réservations
-|GET|`/api/v1/Reservations/{id}`|Détail d’une réservation
-|POST|`/api/v1/Reservations`|Création d’une réservation
-|PUT|`/api/v1/Reservations/{id}`|Mise à jour
-|DELETE|`/api/v1/Reservations/{id}`|Suppression
+#### Reservations
+|Méthode|Endpoint|Description|
+|---|---|---|
+|GET|`/api/v1/Reservations?page=\&pageSize=`|Liste paginée des réservations|
+|GET|`/api/v1/Reservations/{id}`|Détail d’une réservation|
+|POST|`/api/v1/Reservations`|Création d’une réservation|
+|PUT|`/api/v1/Reservations/{id}`|Mise à jour|
+|DELETE|`/api/v1/Reservations/{id}`|Suppression|
 
 ---
 

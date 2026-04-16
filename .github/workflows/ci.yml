@@ -15,26 +15,31 @@ jobs:
   build-test:
     runs-on: ubuntu-latest
 
-    env:
-      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
-      POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-
-      JWT_KEY: ${{ secrets.JWT_KEY }}
-      JWT_ISSUER: ${{ secrets.JWT_ISSUER }}
-      JWT_AUDIENCE: ${{ secrets.JWT_AUDIENCE }}
-      JWT_ACCESS_TOKEN_MINUTES: ${{ secrets.JWT_ACCESS_TOKEN_MINUTES }}
-      JWT_REFRESH_TOKEN_DAYS: ${{ secrets.JWT_REFRESH_TOKEN_DAYS }}
-
-      ASPNETCORE_ENVIRONMENT: ${{ secrets.ASPNETCORE_ENVIRONMENT }}
-
     steps:
 
     # ======== Checkout
     - name: Checkout repository
       uses: actions/checkout@v4
+
+
+    # ======== Variables .env (back)
+    - name: Create .env file for Docker
+      run: |
+        cat <<EOF > .env
+        Postgres__Database=${{ secrets.Postgres__Database }}
+        Postgres__User=${{ secrets.Postgres__User }}
+        Postgres__Password=${{ secrets.Postgres__Password }}
+        Postgres__Port=${{ secrets.Postgres__Port }}
+        Postgres__Host=${{ secrets.Postgres__Host }}
+
+        Jwt__Key=${{ secrets.Jwt__Key }}
+        Jwt__Issuer=${{ secrets.Jwt__Issuer }}
+        Jwt__Audience=${{ secrets.Jwt__Audience }}
+        Jwt__AccessTokenMinutes=${{ secrets.Jwt__AccessTokenMinutes }}
+        Jwt__RefreshTokenDays=${{ secrets.Jwt__RefreshTokenDays }}
+
+        ASPNETCORE_ENVIRONMENT=${{ secrets.ASPNETCORE_ENVIRONMENT }}
+        EOF
 
 
     # ======== Setup (front+back)
@@ -87,18 +92,18 @@ jobs:
 
     # ======== Build Docker (front+back)
     - name: Build Docker images
-      run: docker compose build
+      run: docker compose --env-file .env build
 
 
     # ======== Test docker-compose (check API+GraphQL)
     - name: Start docker-compose
-      run: docker compose up -d
+      run: docker compose --env-file .env up -d
 
     - name: Wait for API to be ready
       run: |
         echo "Waiting for API..."
-        for i in {1..20}; do
-          if curl -s http://localhost:5000/api/Products > /dev/null; then
+        for i in {1..30}; do
+          if curl -s http://localhost:5000/api/v1/Products > /dev/null; then
             echo "API is ready!"
             exit 0
           fi
