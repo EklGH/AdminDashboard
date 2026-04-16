@@ -31,13 +31,13 @@ namespace AdminDashboard.Infrastructure.Auth
 
             // credentials de signature
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_config["JWT_KEY"]!)
+                Encoding.UTF8.GetBytes(_config["Jwt:Key"]!)
             );
 
             // Création du JWT
             var token = new JwtSecurityToken(
-                issuer: _config["JWT_ISSUER"],
-                audience: _config["JWT_AUDIENCE"],
+                issuer: _config["Jwt:Issuer"],
+                audience: _config["Jwt:Audience"],
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(15),
                 signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)

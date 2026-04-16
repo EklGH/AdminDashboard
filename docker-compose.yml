@@ -6,11 +6,11 @@ services:
     container_name: admindashboard-db
     restart: always
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${Postgres__Database}
+      POSTGRES_USER: ${Postgres__User}
+      POSTGRES_PASSWORD: ${Postgres__Password}
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "${Postgres__Port}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -29,12 +29,13 @@ services:
       - db
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
-      ConnectionStrings__Default: Host=${POSTGRES_HOST};Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
-      Jwt__Key: ${JWT_KEY}
-      Jwt__Issuer: ${JWT_ISSUER}
-      Jwt__Audience: ${JWT_AUDIENCE}
-      Jwt__AccessTokenMinutes: ${JWT_ACCESS_TOKEN_MINUTES}
-      Jwt__RefreshTokenDays: ${JWT_REFRESH_TOKEN_DAYS}
+      ConnectionStrings__Default: Host=${Postgres__Host};Port=${Postgres__Port};Database=${Postgres__Database};Username=${Postgres__User};Password=${Postgres__Password}
+
+      Jwt__Key: ${Jwt__Key}
+      Jwt__Issuer: ${Jwt__Issuer}
+      Jwt__Audience: ${Jwt__Audience}
+      Jwt__AccessTokenMinutes: ${Jwt__AccessTokenMinutes}
+      Jwt__RefreshTokenDays: ${Jwt__RefreshTokenDays}
     ports:
       - "5000:8080"
     networks:
